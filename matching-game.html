@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Matching Game</title>
+
+    <!-- Call external fonts -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Londrina+Shadow&display=swa" />
+
+    <!-- CSS Internal Stylesheet -->
+    <style>
+        body {
+            font-family: "Londrina Shadow", Verdana, serif;
+            font-size: 1.5rem;
+            font-weight: bold;
+            background-color: mediumpurple;
+            margin: auto;
+            align-items: center;
+            justify-content: center;
+        }
+
+        h1 {
+            display: inline-block;
+        }
+
+        button {
+            background-color: chocolate;
+            scale: 200%;
+            margin-left: 50px;
+            border-radius: 8px;
+        }
+
+        img {
+            position: absolute;
+        }
+
+        div {
+            position: absolute;
+            display: inline-block;
+            width: 500px;
+            height: 500px;
+        }
+
+        #leftSide {
+            border: 5px solid;
+            border-radius: 8%;
+            background: linear-gradient(0.4turn, chocolate 45%, brown);
+        }
+
+        #rightSide {
+            left: 505px;
+            /*border-left: 5px solid;
+            border-radius: 8%;*/
+            border: 5px solid;
+            border-radius: 8%;
+            background-color: black;
+        }
+    </style>
+</head>
+<body>
+    <h1>Matching Game</h1>
+
+    <!-- button to clear and reset the game, reloads the page -->
+    <button onclick="clearGame()" id="clear" hidden>CLEAR</button>
+
+    <!-- Game instruction to be displayed on the page -->
+    <p>Click on the <strong>extra</strong> smiling face on the left with the Orange background.</p>
+
+
+    <!-- Play areas left and right -->
+    <div id="leftSide"></div>
+    <div id="rightSide"></div>
+
+    <!-- JavaScript -->
+    <script>
+        //Run the generateFaces() function on window load
+        window.addEventListener('load', generateFaces);
+
+        //Global Variable declarations
+        const userNumber = parseInt(prompt("How many faces would you like to add each round?")); //user input for number of faces to add
+        let numberOfFaces = userNumber; //a second variable that CAN change the amount of faces per iteration, while keeping the original input
+        let attempts = 0; //counter for correct attempts made
+        const theLeftSide = document.querySelector('#leftSide'); //left side div node selector
+        const theRightSide = document.querySelector('#rightSide'); //right side div node selector
+
+        //Function to generate more smiley faces
+        function generateFaces() {
+            for (let i = 1; i <= numberOfFaces; i++) {
+                //Function variable declarations
+                let face = document.createElement('img'); //creates a new img node in the document
+                let randomTop = Math.floor((Math.random() * 400) + 1); //generates a random number for the top offset of the images
+                let randomLeft = Math.floor((Math.random() * 400) + 1); //generates a random number for the top offset of the images
+
+                //DOM element manipulation
+                face.src = "https://learn.nucamp.co/pluginfile.php/619/mod_assign/intro/smile.png";
+                face.style.top = randomTop + 'px';
+                face.style.left = randomLeft + 'px';
+
+                //Add the 'face' img element to the DOM as a child of 'theLeftSide'
+                theLeftSide.appendChild(face);
+            }
+
+            //Event handler to call the nextLevel function when smiley face is clicked
+            theLeftSide.lastChild.addEventListener('click', nextLevel);
+
+            //Event handler to call a function when anything BUT the right face is clicked
+            document.body.addEventListener('click', gameOver);
+
+            //Adds 5 faces to the puzzle and moves to the next level
+            function nextLevel(event) {
+                event.stopPropagation();
+                numberOfFaces += userNumber;
+                attempts += 1;
+
+                //Remove all children from the left side div
+                while (theLeftSide.firstChild) {
+                theLeftSide.removeChild(theLeftSide.firstChild);
+                }
+
+                //Remove all children from the right side div
+                while (theRightSide.firstChild) {
+                theRightSide.removeChild(theRightSide.firstChild);
+                }
+
+                generateFaces();
+            }
+
+            //More global variables
+            const leftSideImages = theLeftSide.cloneNode(true);
+            leftSideImages.removeChild(leftSideImages.lastChild);
+            let children = leftSideImages.childNodes.length; //variable for setting iteration amount for appending children
+
+            //debugging to check for the correct value of children
+            console.log(children);
+
+            for (let i = 0; i < children; i++) {
+                const newNode = leftSideImages.childNodes[i].cloneNode();
+                theRightSide.appendChild(newNode);
+            }
+        }
+        //Removes Event Listeners from all nodes and end the game
+        function gameOver() {
+            alert("Game Over! You guessed correct " + attempts + " times!");
+            document.querySelector("#clear").removeAttribute("hidden");
+            document.body.removeEventListener('click', gameOver);
+            theLeftSide.lastChild.removeEventListener('click', nextLevel);
+            generateFaces();
+        }
+
+        function clearGame() {
+            location.reload();
+        }
+    </script>
+
+</body>
+</html>
